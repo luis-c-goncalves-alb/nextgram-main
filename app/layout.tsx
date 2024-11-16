@@ -1,6 +1,8 @@
 import { createTheme, MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.layer.css'
 import './global.css';
+import { OpenInfoHandler } from './open-info-handler';
+import { Suspense } from 'react';
 
 export const metadata = {
   title: 'NextGram',
@@ -16,11 +18,13 @@ export default function RootLayout(props: {
   children: React.ReactNode;
   modal: React.ReactNode;
 }) {
-
   return (
     <html>
       <body> 
       <MantineProvider theme={theme}>
+        <Suspense fallback={null}>
+          <OpenInfoHandler />
+        </Suspense>
         {props.modal}
         {props.children}
       </MantineProvider>

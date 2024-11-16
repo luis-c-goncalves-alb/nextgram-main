@@ -1,41 +1,36 @@
-import { redirect } from 'next/navigation';
-import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
- 
-// This function can be marked `async` if using `await` inside
+import { NextResponse } from 'next/server'
+
 export function middleware(request: NextRequest) {
-    //  console.log("REQUEST", request);
-    const routePathname = request.nextUrl.pathname
-    console.log("PATHNAME", routePathname);
+  const requestedPath = request.nextUrl.pathname
 
-    const nextURLFromHeaders = request.headers.get("next-url")
-    console.log("NEXT-URL", nextURLFromHeaders);
+  if (requestedPath.startsWith('/photos')) {
+    const referer = request.headers.get('referer')
+    
+    if (referer === null || referer === request.nextUrl.href) {
+      // it's a deeplink
+      
+      const hasInfoSearchParam = !!request.nextUrl.searchParams.get('info')
 
-    //ADD NEW HEADERS
-    const requestHeaders = new Headers(request.headers)
-    requestHeaders.set("pathname", routePathname)
+      if (hasInfoSearchParam) {
+        console.log('entrou')
+        return NextResponse.next()
+      }
 
-    // const response = NextResponse.next();
-    // response.headers.set('pathname', routePathname);
-    // return response;    
+      // clone url
+      const url = request.nextUrl.clone()
 
-    //if nextURLFromHeaders é porque vem da for-you, se for null foi
-    // refresh ou deep linking
-    if(nextURLFromHeaders === null){
-      const response = NextResponse.redirect(new URL(`/for-you?info=${routePathname}`, request.url))
-      //  response.headers.set('pathname', routePathname)
-      return response
+      // manipulate pathname
+      url.pathname = '/for-you'
+
+      // add info query string parameter with info path
+      url.searchParams.set('info', request.nextUrl.pathname)
+
+      return NextResponse.redirect(url)
     }
-
-    //TODO: eu acho que isto é que está mal, porque não vai entrar aqui
-    // return NextResponse.next({
-    //     request: {
-    //       headers: requestHeaders,
-    //     },
-    //   })    
+  }
 }
- 
-// See "Matching Paths" below to learn more
+
 export const config = {
-  matcher: '/photos/:id*',
+  matcher: ['/((?!api|assets|_next/static|_next/image|favicon.ico).*)'],
 }
