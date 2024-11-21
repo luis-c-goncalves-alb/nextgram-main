@@ -23,10 +23,12 @@ export function middleware(request: NextRequest) {
       // manipulate pathname
       url.pathname = '/for-you'
 
-      // add info query string parameter with info path
-      url.searchParams.set('info', request.nextUrl.pathname)
+      const redirect = NextResponse.redirect(url)
 
-      return NextResponse.redirect(url)
+      // add info query string parameter with info path
+      redirect.cookies.set('info', request.nextUrl.pathname)
+
+      return redirect
     }
   }
 }

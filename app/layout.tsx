@@ -3,6 +3,7 @@ import '@mantine/core/styles.layer.css'
 import './global.css';
 import { OpenInfoHandler } from './open-info-handler';
 import { Suspense } from 'react';
+import { cookies } from 'next/headers';
 
 export const metadata = {
   title: 'NextGram',
@@ -18,12 +19,15 @@ export default function RootLayout(props: {
   children: React.ReactNode;
   modal: React.ReactNode;
 }) {
+  const cookieStore = cookies()
+  const infoUrl = cookieStore.get('info')?.value
+
   return (
     <html>
       <body> 
       <MantineProvider theme={theme}>
         <Suspense fallback={null}>
-          <OpenInfoHandler />
+          <OpenInfoHandler url={infoUrl} />
         </Suspense>
         {props.modal}
         {props.children}
